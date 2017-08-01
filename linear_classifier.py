@@ -8,7 +8,9 @@ import nltk
 
 import numpy as np
 
-from collections import defaultdict, Counter
+from collections import Counter
+
+import glob
 
 import io
 with io.open('imdb.vocab','r',encoding='utf8') as f:
@@ -23,22 +25,30 @@ bag_of_words = bag_of_words.split('\\n')[100:]
 
 def get_descriptor(text):
     word_counts = Counter()
+    base_desciptor = np.zeros(len(bag_of_words))
     tokens = nltk.word_tokenize(text)
     for token in tokens:
         if token in bag_of_words:
-            word_counts[token] += 1
-
-    return word_counts
+            word_counts[tokens.index(token)] += 1
 
 
-with io.open('train/unsup/0_0.txt','r',encoding='utf8') as f:
-    text = f.read()
+    for k in word_counts:
+        base_desciptor[k] = word_counts[k]
+    return base_desciptor
 
-    corpus = text.encode('ascii', 'ignore')
-    test_doc = str(corpus)
+def load_text_files(dirt):
+    file_paths = glob.glob(dirt +'*.txt')
+    documents = list()
+    for file_path in file_paths:
+        with io.open('train/unsup/0_0.txt','r',encoding='utf8') as f:
+            unicode_data = f.read()
 
-print(get_descriptor(test_doc))
+            document = str(unicode_data.encode('ascii', 'ignore'))
+            documents.append(document)
+    return documents
 
+
+print(len(load_text_files("train/unsup/")))
 
 
 
